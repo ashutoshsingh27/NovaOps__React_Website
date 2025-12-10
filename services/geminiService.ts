@@ -1,11 +1,14 @@
 import { GoogleGenAI } from "@google/genai";
 
 const getAiClient = () => {
-  if (!process.env.API_KEY) {
-    console.warn("API_KEY not found in environment variables");
+  // Access environment variable exclusively from process.env.API_KEY
+  const apiKey = process.env.API_KEY;
+
+  if (!apiKey) {
+    console.warn("API_KEY not found. Make sure process.env.API_KEY is set.");
     return null;
   }
-  return new GoogleGenAI({ apiKey: process.env.API_KEY });
+  return new GoogleGenAI({ apiKey });
 };
 
 export const generateChatResponse = async (history: { role: string; text: string }[], userMessage: string): Promise<string> => {
@@ -30,11 +33,6 @@ export const generateChatResponse = async (history: { role: string; text: string
     
     Keep responses relatively short (under 100 words) unless a complex technical explanation is asked.`;
 
-    // Construct the chat history for the prompt
-    // We will use a stateless approach here for simplicity with generateContent, 
-    // but context is maintained by passing previous turns in the prompt if needed, 
-    // or using the chat API. Let's use the Chat API for better context handling.
-    
     const chat = ai.chats.create({
       model: model,
       config: {
